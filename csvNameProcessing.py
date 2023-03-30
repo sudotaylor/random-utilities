@@ -70,7 +70,7 @@ escapeList: dict[str, str] = {
     'Ü': 'U'
 }
 
-def fixCharacters(row: list[str], colNumbers: list[int]) -> list[str]:
+def fixCharacters(row: list[str], colNumbers: list[int] = [2,3]) -> list[str]:
     for char, escape in escapeList.items():
         for colNum in colNumbers:
             row[colNum] = row[colNum].replace(char, escape)
@@ -123,14 +123,14 @@ def csvFixCharsCopy(inputCsv: str, outputCsv: str, delim: str = ',') -> None:
         writer: csv._writer = csv.writer(outFile, delimiter=delim, lineterminator='\n')
         with open(inputCsv, mode='r', encoding='UTF-8') as f:
             for row in csv.reader(f, delimiter=delim):
-                writer.writerow(delim.join(fixCharacters(row)))
+                writer.writerow(fixCharacters(row))
         
 
 def csvFixCharsOverwrite(csvFile: str, delim: str = ',') -> None:
     with open(csvFile, mode='r', encoding='UTF-8') as f:
-        outputMem: list[str] = []
+        outputMem: list[list[str]] = []
         for row in csv.reader(f, delimiter=delim):
-            outputMem.append(delim.join(fixCharacters(row)))
+            outputMem.append(fixCharacters(row))
     with open(csvFile, mode='w', encoding='UTF-8') as f:
         writer: csv._writer = csv.writer(f, delimiter=delim, lineterminator='\n')
         for row in outputMem:
@@ -143,21 +143,21 @@ def csvFixFileCopy(inputCsv: str, outputCsv: str, delim: str = ',') -> None:
             headerList: list[str] = f.readline().split(delim)
             ## note hardcoded column positions, as in fullFixNames() -- can alter later if desired
             headerList = headerList[:2] + ["Last.Name", "First.Name", "Middle", "Suffix"] + headerList[4:]
-            writer.writerow(delim.join(headerList))
+            writer.writerow(headerList)
             for row in csv.reader(f, delimiter=delim):
-                writer.writerow(delim.join(fullFixNames(row))) ## could change quoting in csv.writer if desired
+                writer.writerow(fullFixNames(row)) ## could change quoting in csv.writer if desired
 
 def csvFixFileOverwrite(csvFile: str, delim: str = ',') -> None:
     with open(csvFile, mode='r', encoding='UTF-8') as f:
         headerList: list[str] = f.readline().split(delim)
         ## note hardcoded column positions, as in fullFixNames() -- can alter later if desired
         headerList = headerList[:2] + ["Last.Name", "First.Name", "Middle", "Suffix"] + headerList[4:]
-        outputMem: list[str] = []
+        outputMem: list[list[str]] = []
         for row in csv.reader(f, delimiter=delim):
-            outputMem.append(delim.join(fullFixNames(row)))
+            outputMem.append(fullFixNames(row))
     with open(csvFile, mode='w', encoding='UTF-8') as f:
         writer: csv._writer = csv.writer(f, delimiter=delim, lineterminator='\n')
-        writer.writerow(delim.join(headerList))
+        writer.writerow(headerList)
         for row in outputMem:
             writer.writerow(row)
 
